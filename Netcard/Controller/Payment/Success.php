@@ -86,7 +86,6 @@ class Success extends Action
                     $_checkoutSession = $objectManager->create('\Magento\Checkout\Model\Session');
                     $_quoteFactory = $objectManager->create('\Magento\Quote\Model\QuoteFactory');
 
-                    // $order = $_checkoutSession->getLastRealOrder();
                     $quote = $_quoteFactory->create()->loadByIdWithoutStore($order->getQuoteId());
                     if ($quote->getId()) {
                         $quote->setIsActive(true)->setReservedOrderId(null)->save();
@@ -130,9 +129,17 @@ class Success extends Action
             }
 
         }else{
-            if($customerSession->getCustomer()->getEmail() != $order->getCustomerEmail()){
-                return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
-            }
+            /**
+             * If simply want to redirect Guest user to checkout/onepage/success
+             * As is defulte in Magento
+             */
+            // return $this->resultRedirectFactory->create()->setPath('checkout/onepage/success');
+            
+            /**
+             * Netopia Custom page for Guest
+             */
+            $cryptedMail = md5($order->getCustomerEmail());
+            return $this->resultRedirectFactory->create()->setPath('netopia/payment/guest?&code='.$cryptedMail.'&orderId='.$order->getEntityId());
         }
 
         

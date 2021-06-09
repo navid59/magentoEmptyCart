@@ -96,7 +96,7 @@ class Redirect extends Template
 //            $order = $this->_checkoutSession->getLastRealOrder();
 //            $orderId=$order->getEntityId();
         } else {
-            $orderId = $connection->fetchAll('SELECT `'.$tblSalesOrder.'`.entity_id FROM `'.$tblSalesOrder.'` INNER JOIN `'.$tblQuoteIdMask.'` ON `'.$tblSalesOrder.'`.quote_id=`'.$tblQuoteIdMask.'`.quote_id AND `'.$tblQuoteIdMask.'`.masked_id='.$connection->quote($quoteId)); // may need  ORDER BY `entity_id` DESC 
+            $orderId = $connection->fetchAll('SELECT `'.$tblSalesOrder.'`.entity_id FROM `'.$tblSalesOrder.'` INNER JOIN `'.$tblQuoteIdMask.'` ON `'.$tblSalesOrder.'`.quote_id=`'.$tblQuoteIdMask.'`.quote_id AND `'.$tblQuoteIdMask.'`.masked_id='.$connection->quote($quoteId).'  ORDER BY entity_id DESC LIMIT 1');
            // Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('customer/account'));
         }
         //print_r($this->_orderFactory->loadByAttribute('entity_id',$orderId));

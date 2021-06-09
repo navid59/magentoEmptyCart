@@ -91,7 +91,7 @@ class Redirect extends Action {
         $tblSalesOrder = $this->_resource->getTableName('sales_order');
         $tblQuoteIdMask = $this->_resource->getTableName('quote_id_mask');
 
-        $getQuoteID = $connection->fetchAll('SELECT quote_id FROM `'.$tblQuoteIdMask.'` WHERE `masked_id`="'.$quoteMaskId.'" LIMIT 1');
+        $getQuoteID = $connection->fetchAll('SELECT quote_id FROM `'.$tblQuoteIdMask.'` WHERE `masked_id`="'.$this->getRealQuoteId($quoteMaskId).'" LIMIT 1');
         $quoteId = $getQuoteID[0]['quote_id'];
         $orderId = $connection->fetchAll('SELECT entity_id FROM `'.$tblSalesOrder.'` WHERE quote_id="'.$quoteId.'" ORDER BY `entity_id` DESC LIMIT 1');
         return $orderId[0]['entity_id'];    

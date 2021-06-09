@@ -48,12 +48,48 @@ class Guest extends Action
      */
     public function execute()
     {
-        
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $resultPage = $this->resultPageFactory->create();
         $orderId = $this->_request->getParam('orderId');
         $code = $this->_request->getParam('code');
         $order = $this->_orderFactory->load($orderId);
 
+        /**
+         * To manage Reject Payment on Guest User
+         */
+        if($order->getStatus()==Order::STATE_PENDING_PAYMENT) {
+            $msg = 'The order is not paid!';
+            $msg .= " | ".current($order->getAllStatusHistory())->getComment();
+            $this->messageManager->addError($msg);
+
+            /**
+             * Reload cart here start
+             */
+            $_checkoutSession = $objectManager->create('\Magento\Checkout\Model\Session');
+            $_quoteFactory = $objectManager->create('\Magento\Quote\Model\QuoteFactory');
+            $quote = $_quoteFactory->create()->loadByIdWithoutStore($order->getQuoteId());
+
+            if ($quote->getId()) {
+                $quote->setIsActive(true)->setReservedOrderId(null)->save();
+                $_checkoutSession->replaceQuote($quote);
+
+                // We cancel this Order - Start
+                $payment = $order->getPayment();
+                $payment->setPreparedMessage('Guest user rejected payment & back to shoping');
+                $payment->setIsTransactionDenied(true);
+                $payment->getAdditionalInformation();
+                $payment->registerVoidNotification();
+                
+                $order->setStatus(Order::STATE_CANCELED); // Order status set as cancel & will generate new Cart,..
+                $order->save();
+                 // We cancel this Order - END
+            }
+
+            /**
+             * Reload cart here End
+             */
+            return $this->resultRedirectFactory->create()->setPath('checkout/cart');
+        }
 
         if(md5($order->getCustomerEmail()) != $code){
             $msg = 'Oops, access denied';
@@ -68,7 +104,7 @@ class Guest extends Action
         }
 
 
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        // $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $customerSession = $objectManager->get('Magento\Customer\Model\Session');
         if($customerSession->isLoggedIn()) {
             return $this->resultRedirectFactory->create()->setPath('netopia/payment/success/?&orderId='.$orderId);
@@ -76,7 +112,7 @@ class Guest extends Action
    
 
         if ($order->getCanSendNewEmailFlag()) { 
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            // $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
             $emailSender = $objectManager->create('\Magento\Sales\Model\Order\Email\Sender\OrderSender');
             $emailSender->send($order);
         }

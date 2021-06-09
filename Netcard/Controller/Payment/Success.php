@@ -82,7 +82,6 @@ class Success extends Action
                     /**
                      * Reload cart here start
                      */
-
                     $_checkoutSession = $objectManager->create('\Magento\Checkout\Model\Session');
                     $_quoteFactory = $objectManager->create('\Magento\Quote\Model\QuoteFactory');
 

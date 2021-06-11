@@ -222,7 +222,7 @@ class Ipn extends Action implements CsrfAwareActionInterface {
             ->setFailSafe(true)
             //build method creates the transaction and returns the object
             ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_REFUND);
-        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage. " - payment rejected by NETOPIA Payments - ");
+        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage. " - Tranzactie anulata - ");
         $this->_order->setStatus(Order::STATE_PENDING_PAYMENT); // Order status Can be even set as STATE_CANCELED
         $this->_order->save();
     }
@@ -337,7 +337,7 @@ class Ipn extends Action implements CsrfAwareActionInterface {
             ->setFailSafe(true)
             //build method creates the transaction and returns the object
             ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_REFUND);
-        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage . " - reviewing by NETOPIA Payments  - ");
+        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage . " - tranzactie in curs de verificare - ");
         $this->_order->setStatus(Order::STATE_PAYMENT_REVIEW);
         $this->_order->save();
 
@@ -371,7 +371,7 @@ class Ipn extends Action implements CsrfAwareActionInterface {
             ->setFailSafe(true)
             //build method creates the transaction and returns the object
             ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE);
-        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage . " - Accepted by NETOPIA Payments - ");
+        $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage . " - ");
         $this->_order->setStatus(Order::STATE_COMPLETE);
         $this->_order->save();
     }

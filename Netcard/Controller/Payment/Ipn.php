@@ -223,7 +223,7 @@ class Ipn extends Action implements CsrfAwareActionInterface {
             //build method creates the transaction and returns the object
             ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_REFUND);
         $payment->addTransactionCommentsToOrder($transaction, $this->_objPmReq->objPmNotify->errorMessage. " - Tranzactie anulata - ");
-        $this->_order->setStatus(Order::STATE_PENDING_PAYMENT); // Order status Can be even set as STATE_CANCELED
+        $this->_order->setStatus(Order::STATE_CANCELED); // Order status Can be even set as STATE_PENDING_PAYMENT
         $this->_order->save();
     }
 

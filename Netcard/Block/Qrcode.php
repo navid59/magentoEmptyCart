@@ -17,6 +17,7 @@ use Netopia\Netcard\Mobilpay\Payment\Request\MobilpayPaymentRequestCard;
 use Netopia\Netcard\Mobilpay\Payment\MobilpayPaymentAddress;
 use Magento\Framework\Module\Dir;
 use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\Encryption\EncryptorInterface;
 
 /**
  * Class Redirect
@@ -33,6 +34,7 @@ class Qrcode extends Template
     protected $_moduleReader;
     Protected $quoteFactory;
     protected $_curl;
+    protected $encryptor;
 
     /**
      * @var MobilpayPaymentRequestCard
@@ -67,6 +69,7 @@ class Qrcode extends Template
                                 QuoteFactory $quoteFactory,
                                 Reader $reader,
                                 Curl $curl,
+                                EncryptorInterface $encryptor,
                                 array $data)
     {
         $this->_resource = $resource;
@@ -75,6 +78,7 @@ class Qrcode extends Template
         $this->quoteFactory = $quoteFactory;
         $this->_moduleReader = $reader;
         $this->_curl = $curl;
+        $this->encryptor = $encryptor;
         parent::__construct($context, $data);
     }
 
@@ -120,7 +124,7 @@ class Qrcode extends Template
             'message' => '',
             'transactionId' => ''
         ];
-
+    
     try {
         $data =
                 [
@@ -148,11 +152,10 @@ class Qrcode extends Template
                         ],
                     ],
                 ];
-
             $request = \Safe\json_decode(\Safe\json_encode($data), FALSE);
             $request->order->amount = round($request->order->amount,2);
             
-            $pass = $this->getConfigData('auth/password');
+            $pass = $this->encryptor->decrypt($this->getConfigData('auth/password'));
             $string = strtoupper(md5($pass)).$request->order->id.$request->order->amount.$request->order->currency.$request->account->id;
             $request->account->hash = strtoupper(sha1($string));
 
@@ -175,7 +178,14 @@ class Qrcode extends Template
             $params->request = $request;
             $response = $client->doPay($params);
         } catch (\Exception $exception) {
-           $response = $exception->error_reporting();
+            echo "<pre>";
+            die(print_r($exception));
+            $errorResponse = new \StdClass;
+            $errorResponse->errors = new \StdClass;
+            $errorResponse->errors->code = 1;
+            $errorResponse->errors->message = "Verify, the Wallet setting";
+            return($errorResponse); 
+            // $response = $exception->error_reporting();
         }
         return($response->doPayResult);
     }

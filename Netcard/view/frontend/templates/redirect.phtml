@@ -2,7 +2,7 @@
     /* @var Netopia\Netcard\Block\Redirect $block */
     $quote = $block->getQuote();
     $formData = $block->getFormData();
-    $paymentUrl = ($block->getConfigData('mode/is_live')) ? 'https://secure.mobilpay.ro' : 'http://sandboxsecure.mobilpay.ro';
+    $paymentUrl = ($block->getConfigData('mode/is_live')) ? 'https://secure.mobilpay.ro' : 'https://sandboxsecure.mobilpay.ro';
 
     if($formData['status']) {
        ?>
